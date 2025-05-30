@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Protobuf CONFIG REQUIRED)
 
 # File .proto
-set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/addressbook.proto)
+set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/addressbook.proto ${CMAKE_CURRENT_SOURCE_DIR}/sensor.proto)
 
 # File generati
 set(GENERATED_PROTO_SRC ${CMAKE_CURRENT_BINARY_DIR}/addressbook.pb.cc)

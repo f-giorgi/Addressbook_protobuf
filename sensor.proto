@@ -1,0 +1,66 @@
+syntax = "proto3";
+// in proto3 all fields are optional by default. No means to specify 'optional'. 'required' was discouraged 
+// in proto2 and it is not supported in proto3.
+package daq.sensor;
+
+// Full Bridge
+message FBT {
+
+}
+
+// Half Bridge
+message HBT {
+
+}
+
+// Linear Variable Differential Transformer (LVDT) senso
+message LVDT {
+  oneof kind {
+    FBT fbt_lvdt = 1;
+    HBT hbt_lvdt = 2;
+  }
+}
+
+enum EncoderType {
+  ENCODER_TYPE_UNSPECIFIED = 0;
+  ENCODER_TYPE_INCREMENTAL = 1;
+  ENCODER_TYPE_ABSOLUTE = 2;
+}
+
+enum EncoderGeometry {
+  ENCODER_GEOMETRY_UNSPECIFIED = 0;
+  ENCODER_GEOMETRY_LINEAR = 1;
+  ENCODER_GEOMETRY_ROTARY = 2;
+}
+
+enum  EncoderOutput {
+  ENCODER_OUTPUT_UNSPECIFIED = 0;
+  ENCODER_OUTPUT_SINGLE_ENDED = 1;
+  ENCODER_OUTPUT_DIFFERENTIAL = 2;
+  ENCODER_OUTPUT_ENDAT22 = 3;
+}
+
+message ENCODER {
+    double nm_resolution = 1;
+    EncoderType type = 2;
+    EncoderGeometry geometry = 3;
+    EncoderOutput output = 4;
+    double modulus = 5; // in mm for linear, in degrees for rotary
+    double max_velocity = 6; // in mm/s for linear, in degrees/s for rotary
+    double max_acceleration = 7; // in mm/s^2 for linear, in degrees/s^2 for rotary
+    double max_position = 9; // in mm for linear, in degrees for rotary
+    double min_position = 10; // in mm for linear, in degrees for rotary
+}
+
+message Sensor {
+  string name = 1; 
+  string description = 2;     
+  oneof type {
+    LVDT lvdt = 3;
+    ENCODER encoder = 4;
+  }
+}
+
+
+
+

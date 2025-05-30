@@ -43,5 +43,134 @@ build> cmake -G Ninja ../
 build> cmake --build .
 
 
+###### NOTE
+In Protobuf (Protocol Buffers), **non esiste un supporto diretto per l’ereditarietà** 
+come in C++ o in altri linguaggi orientati agli oggetti. 
+Tuttavia, ci sono alcune **strategie comuni per simulare o gestire l'ereditarietà** 
+nei messaggi `.proto`.
 
+---
 
+## 🚫 Cosa *non* si può fare
+
+Non puoi scrivere in `.proto` qualcosa del tipo:
+
+```proto
+message Base {
+  int32 id = 1;
+}
+
+message Derived : Base { // ❌ ERRORE: Protobuf non supporta l’ereditarietà
+  string name = 2;
+}
+```
+
+---
+
+## ✅ Soluzioni alternative (Design Pattern)
+
+### 1. **Composizione**
+
+Usa un messaggio dentro l’altro, anziché ereditarietà.
+
+```proto
+message Base {
+  int32 id = 1;
+}
+
+message Derived {
+  Base base = 1;
+  string name = 2;
+}
+```
+
+In C++ genererà qualcosa come:
+
+```cpp
+Derived d;
+d.mutable_base()->set_id(42);
+d.set_name("Mario");
+```
+
+---
+
+### 2. **Oneof per simulare polimorfismo**
+
+Puoi definire un messaggio contenitore che può contenere un "tipo base" con più opzioni.
+
+```proto
+message Animal {
+  oneof kind {
+    Dog dog = 1;
+    Cat cat = 2;
+  }
+}
+
+message Dog {
+  string breed = 1;
+}
+
+message Cat {
+  int32 lives = 1;
+}
+```
+
+In C++ puoi poi fare:
+
+```cpp
+Animal a;
+a.mutable_dog()->set_breed("Labrador");
+```
+
+E verificare il tipo con `a.has_dog()` o `a.has_cat()`.
+
+---
+
+### 3. **Discriminator manuale + campi opzionali**
+
+Puoi usare un campo tipo enum per distinguere il tipo e poi avere campi opzionali.
+
+```proto
+enum ShapeType {
+  SHAPE_UNKNOWN = 0;
+  SHAPE_CIRCLE = 1;
+  SHAPE_RECTANGLE = 2;
+}
+
+message Shape {
+  ShapeType type = 1;
+
+  Circle circle = 2;
+  Rectangle rectangle = 3;
+}
+
+message Circle {
+  double radius = 1;
+}
+
+message Rectangle {
+  double width = 1;
+  double height = 2;
+}
+```
+
+Questo è simile a `oneof` ma ti consente più flessibilità (anche se meno controllo sulla coerenza).
+
+---
+
+## 🧠 Considerazioni
+
+* **Protobuf è pensato per la serializzazione**, non per il modeling OO complesso.
+* Se stai lavorando in C++ e vuoi sfruttare il polimorfismo a runtime, puoi fare un **mapping tra tipi Protobuf e classi C++** polimorfe, ma questo richiede un adattatore esterno (es. una `Factory` che costruisce oggetti C++ dai messaggi Protobuf).
+
+---
+
+## ✅ Conclusione
+
+No, **non puoi usare l’ereditarietà diretta in Protobuf**, ma puoi **simularla efficacemente** con:
+
+* `oneof` per polimorfismo,
+* composizione per riuso di campi,
+* enum + campi opzionali per maggiore controllo.
+
+Se mi descrivi il tuo caso specifico, posso suggerirti lo schema `.proto` e l’interfaccia C++ più adatti.
