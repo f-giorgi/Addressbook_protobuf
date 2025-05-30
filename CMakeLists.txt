@@ -1,15 +1,18 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(AddressBook CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Usa la versione moderna (CONFIG). 
-# Rispetto a 'find_package(Protobuf CONFIG REQUIRED)' non definisce la macro generate_proto_cpp, 
-# che va sostituita con un comando personalizzato. Ma permette di linkare 
-# protobuf::libprotobuf al posto di usare la variabile  ${Protobuf_LIBRARIES}, che ha l'enorme
-# vantantaggio di risolvere automaticamente le dipendenze di protoc,
+# Usa la versione moderna (CONFIG Mode). 
+# Rispetto a 'find_package(Protobuf REQUIRED)' (MODULE Mode), in CONFIG mode non si definisce la macro 
+# generate_proto_cpp, che va sostituita con un comando personalizzato. 
+# Tuttavia in Config mode permette di linkare protobuf::libprotobuf al posto di usare la variabile  
+# ${Protobuf_LIBRARIES}, che ha l'enorme vantantaggio di risolvere automaticamente le dipendenze di protoc,
 # come ad esempio le librerie di sistema necessarie per il linking. (non devo mettere a mano tutte 
 # le librerie statiche di abseil ad esempio).
+#    find_package(Protobuf MODULE REQUIRED) -> Find<PackageName>.cmake
+#    find_package(Protobuf CONFIG REQUIRED) -> <PackageName>Config.cmake or <lower-case-package-name>-config.cmake
+# Ref https://cmake.org/cmake/help/v3.16/command/find_package.html#command:find_package
 find_package(Protobuf CONFIG REQUIRED)
 
 # File .proto
